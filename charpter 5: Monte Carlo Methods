@@ -3,3 +3,4 @@ To ensure that well-defined returns are available, we define Monte Carlo method 
 here we use "Monte Carlo" specifically for methods based on averaging complete returns(as opposed to methods that learn from partial returns considered in the next charpter.)
 
 5.1 Monte Carlo Policy Evaluation
+The difference between DP diagram and Monte Carlo diagram reflects the fundamental difference between the algorithm. First, DP diagram shows only all possible transitions, the Monte Carlo diagram shows only those sampled on the one episode. Second, DP diagram includes only one-step transitions, the Monte Carlo diagram goes all the way to the end of the episode.
