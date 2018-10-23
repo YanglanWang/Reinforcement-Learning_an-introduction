@@ -1,0 +1,5 @@
+it is out first learning methods for estimating value functions and discovering optimal policies. At this point, we begin to quest the reinforcemnet learning without assuming complete knowledge of the environment.
+To ensure that well-defined returns are available, we define Monte Carlo method only for episodic tasks.That is, we assume experience is divided into episodes, and all episodes eventually terminate no matter what actions are selected. It is only upon the completion of an episode that value estimates and policies are changed. Monte Carlo methods are thus incremental in an episode-by-episode sense, but not in a step-by-step sense.
+here we use "Monte Carlo" specifically for methods based on averaging complete returns(as opposed to methods that learn from partial returns considered in the next charpter.)
+
+5.1 Monte Carlo Policy Evaluation
