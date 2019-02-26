@@ -52,11 +52,11 @@ for e_tmp in e:
     # for i in range( len( r_optimal_action ) ):
     #     for j in range( len( r_optimal_action[i] ) ):
     #         r_line.append( r_optimal_action[i][j] )
-    for i in range(len(r_optimal_action)):
-        if i!=0:
-            r_optimal_action[i]=r_optimal_action[i-1]+r_optimal_action[i]
-    for i in range(len(r_optimal_action)):
-        r_optimal_action[i] =r_optimal_action[i]/(i+1)
+    # for i in range(len(r_optimal_action)):
+    #     if i!=0:
+    #         r_optimal_action[i]=r_optimal_action[i-1]+r_optimal_action[i]
+    # for i in range(len(r_optimal_action)):
+    #     r_optimal_action[i] =r_optimal_action[i]/(i+1)
     plot.plot(range(len(r_optimal_action)),r_optimal_action)
     # for i in range(len(r_sample[0])):
     #     plot.plot([i]*len(r_sample),r_sample[:][i])

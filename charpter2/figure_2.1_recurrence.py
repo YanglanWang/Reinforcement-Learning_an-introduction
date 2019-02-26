@@ -15,7 +15,7 @@ for e_tmp in e:
             e_random=np.random.rand()
             if e_tmp < e_random:
                 s_max_expected = max( s_expected )
-                index_max=s_expected.index(s_max_expected)
+                index_max=np.random.choice([index_max_set for index_max_set, s_max_expected_set in enumerate(s_expected) if s_max_expected_set==s_max_expected])
                 s_max=s_xing[index_max]
                 r=np.random.normal(s_max,sigma,1)
             else:
@@ -38,10 +38,10 @@ for e_tmp in e:
 # r_after=np.average(r_whole,axis = 1)
 # for i in range(len(r_whole)):
 #     one_line=r_whole[i]
-    for i in range(len(r_line)):
-        if i!=0:
-            r_line[i]=r_line[i-1]+r_line[i]
-    for i in range(len(r_line)):
-        r_line[i] =r_line[i]/(i+1)
+#     for i in range(len(r_line)):
+#         if i!=0:
+#             r_line[i]=r_line[i-1]+r_line[i]
+#     for i in range(len(r_line)):
+#         r_line[i] =r_line[i]/(i+1)
     plot.plot(range(len(r_line)),r_line)
 plot.show()
