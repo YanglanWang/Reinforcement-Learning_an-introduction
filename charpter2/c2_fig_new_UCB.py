@@ -27,10 +27,7 @@ class Bandit:
 def simulate(sample,play,epsilon_tmp):
     reward_set=[]
     action_set=[]
-    ll=0
     for i in np.arange(sample):
-        np.random.seed( ll )
-        ll=ll+1
 
         sample_reward=[]
         sample_action=[]
@@ -39,8 +36,6 @@ def simulate(sample,play,epsilon_tmp):
         q_xing=np.random.randn(action)
         bandit_tmp=Bandit(epsilon_tmp,action,q_estimate,q_xing)
         for j in np.arange(play):
-            np.random.seed( ll )
-            ll = ll + 1
             action_return=bandit_tmp.action()
             reward_return=bandit_tmp.reward(action_return)
             sample_reward.append(reward_return)
@@ -50,12 +45,11 @@ def simulate(sample,play,epsilon_tmp):
                 sample_action.append(0)
         reward_set.append(sample_reward)
         action_set.append(sample_action)
-    # reward_calculate=np.average(np.array(reward_set),axis=0)
-    # action_calculate=np.average(np.array(action_set),axis=0)
-
-    #for EXE2.3
-    reward_calculate=np.cumsum(np.average(np.array(reward_set),axis=0))
-    action_calculate=np.cumsum(np.average(np.array(action_set),axis=0))
+    reward_calculate=np.average(np.array(reward_set),axis=0)
+    # for k in np.array( reward_set )[:, 0]:
+    #     f.write(str(k)+'\n')
+    # f.close()
+    action_calculate=np.average(np.array(action_set),axis=0)
     return reward_calculate, action_calculate
 
 
@@ -84,4 +78,4 @@ def figure_2_1(sample,play):
     plt.show()
 
 if __name__=='__main__':
-    figure_2_1(2000,1000)
+    figure_2_1(2000,4000)

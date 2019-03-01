@@ -25,10 +25,9 @@ class Bandit:
         if afa==0:
             self.q_estimate[action_index]=(self.q_estimate[action_index]*(self.action_times[action_index]-1)+reward_return)/self.action_times[action_index]
         if afa==0.1:
-            self.q_estimate[action_index]=self.q_estimate[action_index]+afa*(reward_return-self.action_times[action_index])
+            self.q_estimate[action_index]=self.q_estimate[action_index]+afa*(reward_return-self.q_estimate[action_index])
         #if the problem is static, q_xing doesn't change; or else, q_xing changes
-        if afa!=0:
-            self.q_xing=self.q_xing+0.1*np.random.rand(10)
+        self.q_xing=self.q_xing+1*np.random.randn(10)
 
         return reward_return
 
@@ -64,7 +63,7 @@ def exe_2_5_simulate(sample,play,epsilon,afa):
         sample_action=[]
         action = 10
         q_estimate = np.zeros( action )
-        q_xing=np.zeros(action)
+        q_xing=np.ones(action)
         bandit_tmp=Bandit(epsilon,action,q_estimate,q_xing)
         for j in np.arange(play):
             action_return=bandit_tmp.action()
@@ -119,7 +118,7 @@ def exe_2_5(sample,play):
     fig,axes=plt.subplots(2,1,sharex = True)
     for i in range(total_data.shape[1]):
         for j in range(total_data.shape[0]):
-            axes[i].plot(total_data[j][i],label=str(afa_set[j]))
+            axes[i].plot(total_data[j][i][1:],label=str(afa_set[j]))
         axes[i].legend()
         axes[i].set_xlabel('Plays')
         if i==0:
@@ -130,4 +129,4 @@ def exe_2_5(sample,play):
     plt.show()
 if __name__=='__main__':
     # figure_2_1(2000,1000)
-    exe_2_5(2000,1000)
+    exe_2_5(2000,5000)
