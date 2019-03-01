@@ -19,19 +19,22 @@ class Bandit:
         self.action_times[action_return]=self.action_times[action_return]+1
         return action_return
 
-    def reward( self,action_index ):
+    def reward( self,action_index,afa ):
         reward_return=1*np.random.randn()+self.q_xing[action_index]
-        self.q_estimate[action_index]=(self.q_estimate[action_index]*(self.action_times[action_index]-1)+reward_return)/self.action_times[action_index]
+        if afa == 0:
+            self.q_estimate[action_index] = (self.q_estimate[action_index] * (
+                        self.action_times[action_index] - 1) + reward_return) / self.action_times[action_index]
+        if afa == 0.1:
+            self.q_estimate[action_index] = self.q_estimate[action_index] + afa * (
+                        reward_return - self.q_estimate[action_index])
+        # self.q_estimate[action_index]=(self.q_estimate[action_index]*(self.action_times[action_index]-1)+reward_return)/self.action_times[action_index]
+
         return reward_return
 
 def simulate(sample,play,epsilon_tmp):
     reward_set=[]
     action_set=[]
-    ll=0
     for i in np.arange(sample):
-        np.random.seed( ll )
-        ll=ll+1
-
         sample_reward=[]
         sample_action=[]
         action = 10
@@ -39,10 +42,37 @@ def simulate(sample,play,epsilon_tmp):
         q_xing=np.random.randn(action)
         bandit_tmp=Bandit(epsilon_tmp,action,q_estimate,q_xing)
         for j in np.arange(play):
-            np.random.seed( ll )
-            ll = ll + 1
             action_return=bandit_tmp.action()
-            reward_return=bandit_tmp.reward(action_return)
+            reward_return=bandit_tmp.reward(action_return,afa)
+            sample_reward.append(reward_return)
+            if action_return in bandit_tmp.action_optimal_index:
+                sample_action.append(1)
+            else:
+                sample_action.append(0)
+        reward_set.append(sample_reward)
+        action_set.append(sample_action)
+    reward_calculate=np.average(np.array(reward_set),axis=0)
+    # for k in np.array( reward_set )[:, 0]:
+    #     f.write(str(k)+'\n')
+    # f.close()
+    action_calculate=np.average(np.array(action_set),axis=0)
+    return reward_calculate, action_calculate
+
+def simulate_fig_2_3(sample,play,case,afa):
+    reward_set=[]
+    action_set=[]
+    q0=case[0]
+    epsilon_tmp=case[1]
+    for i in np.arange(sample):
+        sample_reward=[]
+        sample_action=[]
+        action = 10
+        q_estimate =q0* np.ones( action )
+        q_xing=np.random.randn(action)
+        bandit_tmp=Bandit(epsilon_tmp,action,q_estimate,q_xing)
+        for j in np.arange(play):
+            action_return=bandit_tmp.action()
+            reward_return=bandit_tmp.reward(action_return,afa)
             sample_reward.append(reward_return)
             if action_return in bandit_tmp.action_optimal_index:
                 sample_action.append(1)
@@ -58,11 +88,10 @@ def simulate(sample,play,epsilon_tmp):
     return reward_calculate, action_calculate
 
 
-
-
 def figure_2_1(sample,play):
     epsilon=[0,0.01,0.1]
     total_data=np.zeros([len(epsilon),2,play])
+    afa=0
     for epsilon_tmp in epsilon:
         # bandit_tmp=Bandit(epsilon_tmp,action_times,q_estimate)
         reward_calculate,action_calculate=simulate(sample,play,epsilon_tmp)
@@ -82,5 +111,27 @@ def figure_2_1(sample,play):
 
     plt.show()
 
+def figure_2_3(sample,play):
+    case_set=[[5,0],[0,0.1]]
+    total_data=np.zeros([len(case_set),2,play])
+    afa=0.1
+    for case in case_set:
+        reward_calculate, action_calculate = simulate_fig_2_3( sample, play, case,afa )
+        total_data[case_set.index( case ), 0, :] = reward_calculate
+        total_data[case_set.index( case ), 1, :] = action_calculate
+
+    fig, axes = plt.subplots( 2, 1, sharex = True )
+    for i in range(total_data.shape[1]):
+        for j in range(total_data.shape[0]):
+            axes[i].plot(total_data[j][i],label='Q0='+str(case_set[j][0])+', epsilon='+str(case_set[j][1]))
+        axes[i].legend()
+        axes[i].set_xlabel('Plays')
+        if i==0:
+            axes[i].set_ylabel('Average rewards')
+        else:
+            axes[i].set_ylabel('Rate of optimal action')
+
+    plt.show()
 if __name__=='__main__':
-    figure_2_1(2000,1000)
+    # figure_2_1(2000,1000)
+    figure_2_3(2000,1000)

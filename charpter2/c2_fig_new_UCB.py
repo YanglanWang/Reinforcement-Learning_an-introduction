@@ -11,11 +11,18 @@ class Bandit:
 
 
 
-    def action( self ):
+    def action( self ,play_t):
         if np.random.rand()<self.epsilon:
             action_return=np.random.randint(len(self.action_times))
         else:
-            action_return=np.random.choice([action_max_set for action_max_set,q_estimate_max in enumerate(self.q_estimate) if q_estimate_max==max(self.q_estimate)])
+            if self.epsilon==0:
+                quarter=np.zeros(len(self.action_times))
+                for i in range(len(self.action_times)):
+                    if self.action_times[i]!=0:
+                        quarter[i]=self.q_estimate[i]+2*np.sqrt(np.log(play_t+1)/self.action_times[i])
+                action_return=np.random.choice([action_max_set for action_max_set,q_estimate_max in enumerate(quarter) if q_estimate_max==max(quarter)])
+            else:
+                action_return=np.random.choice([action_max_set for action_max_set,q_estimate_max in enumerate(self.q_estimate) if q_estimate_max==max(self.q_estimate)])
         self.action_times[action_return]=self.action_times[action_return]+1
         return action_return
 
@@ -36,7 +43,7 @@ def simulate(sample,play,epsilon_tmp):
         q_xing=np.random.randn(action)
         bandit_tmp=Bandit(epsilon_tmp,action,q_estimate,q_xing)
         for j in np.arange(play):
-            action_return=bandit_tmp.action()
+            action_return=bandit_tmp.action(j)
             reward_return=bandit_tmp.reward(action_return)
             sample_reward.append(reward_return)
             if action_return in bandit_tmp.action_optimal_index:
@@ -55,8 +62,8 @@ def simulate(sample,play,epsilon_tmp):
 
 
 
-def figure_2_1(sample,play):
-    epsilon=[0,0.01,0.1]
+def figure_UCB(sample,play):
+    epsilon=[0,0.1]
     total_data=np.zeros([len(epsilon),2,play])
     for epsilon_tmp in epsilon:
         # bandit_tmp=Bandit(epsilon_tmp,action_times,q_estimate)
@@ -78,4 +85,4 @@ def figure_2_1(sample,play):
     plt.show()
 
 if __name__=='__main__':
-    figure_2_1(2000,4000)
+    figure_UCB(2000,4000)

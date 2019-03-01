@@ -27,10 +27,7 @@ class Bandit:
 def simulate(sample,play,epsilon_tmp):
     reward_set=[]
     action_set=[]
-    ll=0
     for i in np.arange(sample):
-        np.random.seed( ll )
-        ll=ll+1
 
         sample_reward=[]
         sample_action=[]
@@ -39,8 +36,6 @@ def simulate(sample,play,epsilon_tmp):
         q_xing=np.random.randn(action)
         bandit_tmp=Bandit(epsilon_tmp,action,q_estimate,q_xing)
         for j in np.arange(play):
-            np.random.seed( ll )
-            ll = ll + 1
             action_return=bandit_tmp.action()
             reward_return=bandit_tmp.reward(action_return)
             sample_reward.append(reward_return)
@@ -83,4 +78,4 @@ def figure_2_1(sample,play):
     plt.show()
 
 if __name__=='__main__':
-    figure_2_1(2000,1000)
+    figure_2_1(2000,4000)

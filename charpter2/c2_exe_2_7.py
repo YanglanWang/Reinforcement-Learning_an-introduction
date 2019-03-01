@@ -106,7 +106,7 @@ def figure_2_1(sample,play):
             axes[i].set_ylabel('Rate of optimal action')
 
     plt.show()
-def exe_2_5(sample,play):
+def exe_2_7(sample,play):
     epsilon=0.1
     total_data=np.zeros([2,2,play])
     #afa=0 denotes afa=1/k
@@ -129,4 +129,4 @@ def exe_2_5(sample,play):
     plt.show()
 if __name__=='__main__':
     # figure_2_1(2000,1000)
-    exe_2_5(2000,5000)
+    exe_2_7(2000,5000)

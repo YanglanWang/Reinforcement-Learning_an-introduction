@@ -13,6 +13,7 @@ class Bandit:
         self.reward_reference=0
         self.reward_t=0
         self.action_t=action
+        self.pi_action=np.ones(action)/action
 
 
 
@@ -25,7 +26,8 @@ class Bandit:
         self.action_times[action_return]=self.action_times[action_return]+1
         return action_return
 
-    def action_old_figure_2_5(self,afa):
+    def action_rc(self):
+        afa=0.1
         self.action_optimal_index=[index_xing for index_xing,q_xing_tmp in enumerate(self.q_xing) if q_xing_tmp==max(self.q_xing)]
         beta=0.1
         self.reward_reference=self.reward_reference+afa*(self.reward_t-self.reward_reference)
@@ -34,6 +36,21 @@ class Bandit:
         self.pi_action=np.exp(self.preference)/sum(np.exp(self.preference))
         action_return=np.random.choice(self.action_n,1,p=self.pi_action)[0]
         self.action_t=action_return
+        return action_return
+
+    def action_pursuit( self ):
+        beta_pursuit = 0.01
+        self.action_optimal_index=[index_xing for index_xing,q_xing_tmp in enumerate(self.q_xing) if q_xing_tmp==max(self.q_xing)]
+        # if np.random.rand()<self.epsilon:
+        #     action_return=np.random.randint(len(self.action_times))
+        # else:
+        action_return=np.random.choice(self.action_n,1,p=self.pi_action)[0]
+        if action_return in self.action_optimal_index:
+            self.pi_action[action_return]=self.pi_action[action_return]+beta_pursuit*(1-self.pi_action[action_return])
+        else:
+            self.pi_action[action_return]=self.pi_action[action_return]+beta_pursuit*(0-self.pi_action[action_return])
+        self.pi_action=self.pi_action/np.sum(self.pi_action)
+        self.action_times[action_return]=self.action_times[action_return]+1
         return action_return
 
     def reward( self,action_index,afa ):
@@ -46,6 +63,11 @@ class Bandit:
         # self.q_xing=self.q_xing+1*np.random.randn(10)
 
         return reward_return
+    def reward_rc(self,action_index):
+        reward_return=1*np.random.randn()+self.q_xing[action_index]
+        return reward_return
+
+
 
 
 def simulate(sample,play,epsilon_tmp,afa):
@@ -100,19 +122,22 @@ def exe_2_5_simulate(sample,play,epsilon,afa):
     action_calculate=np.average(np.array(action_set),axis=0)
     return reward_calculate, action_calculate
 
-def old_figure_2_5_simulate(sample,play,epsilon_tmp,afa):
+def reinforcement_comparison_simulate(sample,play):
     reward_set=[]
     action_set=[]
+    afa=0.1
     for i in np.arange(sample):
         sample_reward=[]
         sample_action=[]
         action = 10
         q_estimate = np.zeros( action )
         q_xing=np.random.randn(action)
-        bandit_tmp=Bandit(epsilon_tmp,action,q_estimate,q_xing)
+        bandit_tmp=Bandit(None,action,q_estimate,q_xing)
+        #epsilon in bandit_tmp will not be used
+
         for j in np.arange(play):
-            action_return=bandit_tmp.action_old_figure_2_5(afa)
-            reward_return=bandit_tmp.reward(action_return,afa)
+            action_return=bandit_tmp.action_rc()
+            reward_return=bandit_tmp.reward_rc(action_return)
             bandit_tmp.reward_t=reward_return
             sample_reward.append(reward_return)
             if action_return in bandit_tmp.action_optimal_index:
@@ -125,6 +150,30 @@ def old_figure_2_5_simulate(sample,play,epsilon_tmp,afa):
     action_calculate=np.average(np.array(action_set),axis=0)
     return reward_calculate, action_calculate
 
+def pursuit_simulate(sample,play):
+    reward_set=[]
+    action_set=[]
+    for i in np.arange(sample):
+        sample_reward=[]
+        sample_action=[]
+        action = 10
+        q_estimate = np.zeros( action )
+        q_xing=np.random.randn(action)
+        bandit_tmp=Bandit(None,action,q_estimate,q_xing)
+        for j in np.arange(play):
+            action_return=bandit_tmp.action_pursuit()
+            reward_return=bandit_tmp.reward(action_return,0)
+            bandit_tmp.reward_t=reward_return
+            sample_reward.append(reward_return)
+            if action_return in bandit_tmp.action_optimal_index:
+                sample_action.append(1)
+            else:
+                sample_action.append(0)
+        reward_set.append(sample_reward)
+        action_set.append(sample_action)
+    reward_calculate=np.average(np.array(reward_set),axis=0)
+    action_calculate=np.average(np.array(action_set),axis=0)
+    return reward_calculate, action_calculate
 
 def figure_2_1(sample,play):
     epsilon=[0,0.01,0.1]
@@ -170,13 +219,15 @@ def exe_2_5(sample,play):
 
     plt.show()
 
-def old_figure_2_7(sample,play):
+def old_figure_2_6(sample,play):
     #[a,b]:a=eplison;b=afa
-    case_set=[[0,0.1],[0.1,0],[0.1,0.1]]
+    case_set=['pursuit','reinforcement comparison',[0.1,0.1]]
     total_data=np.zeros([len(case_set),2,play])
     for case in case_set:
         if case_set.index(case)==0:
-            reward_calculate, action_calculate = old_figure_2_5_simulate( sample, play, case[0],case[1])
+            reward_calculate, action_calculate = pursuit_simulate( sample, play)
+        elif case_set.index(case)==1:
+            reward_calculate, action_calculate = reinforcement_comparison_simulate( sample, play)
         else:
             reward_calculate, action_calculate = simulate( sample, play, case[0],case[1])
 
@@ -186,7 +237,11 @@ def old_figure_2_7(sample,play):
     fig, axes = plt.subplots( 2, 1, sharex = True )
     for i in range(total_data.shape[1]):
         for j in range(total_data.shape[0]):
-            axes[i].plot(total_data[j][i],label='epsilon='+str(case_set[j][0])+', afa='+str(case_set[j][1]))
+            if j==0 or j==1:
+                label_tmp=case_set[j]
+            else:
+                label_tmp='epsilon='+str(case_set[j][0])+', afa='+str(case_set[j][1])
+            axes[i].plot(total_data[j][i],label=label_tmp)
         axes[i].legend()
         axes[i].set_xlabel('Plays')
         if i==0:
@@ -198,4 +253,4 @@ def old_figure_2_7(sample,play):
 if __name__=='__main__':
     # figure_2_1(2000,1000)
     # exe_2_5(2000,5000)
-    old_figure_2_7(2000,1000)
+    old_figure_2_6(2000,1000)
