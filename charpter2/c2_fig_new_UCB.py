@@ -17,10 +17,18 @@ class Bandit:
         else:
             if self.epsilon==0:
                 quarter=np.zeros(len(self.action_times))
+                action_max_set=[]
+                action_max_set1=[]
+                action_max_set2=[]
                 for i in range(len(self.action_times)):
                     if self.action_times[i]!=0:
                         quarter[i]=self.q_estimate[i]+2*np.sqrt(np.log(play_t+1)/self.action_times[i])
-                action_return=np.random.choice([action_max_set for action_max_set,q_estimate_max in enumerate(quarter) if q_estimate_max==max(quarter)])
+                    else:
+                        quarter[i] = self.q_estimate[i]
+                        action_max_set2.append(i)
+                action_max_set1=[action_max for action_max,q_estimate_max in enumerate(quarter) if q_estimate_max==max(quarter)]
+                action_max_set=action_max_set1+action_max_set2
+                action_return=np.random.choice(action_max_set)
             else:
                 action_return=np.random.choice([action_max_set for action_max_set,q_estimate_max in enumerate(self.q_estimate) if q_estimate_max==max(self.q_estimate)])
         self.action_times[action_return]=self.action_times[action_return]+1

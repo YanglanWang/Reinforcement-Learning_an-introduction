@@ -41,15 +41,18 @@ class Bandit:
     def action_pursuit( self ):
         beta_pursuit = 0.01
         self.action_optimal_index=[index_xing for index_xing,q_xing_tmp in enumerate(self.q_xing) if q_xing_tmp==max(self.q_xing)]
+        q_estimate_max=np.random.choice([index_estimate for index_estimate,q_estimate_tmp in enumerate(self.q_estimate) if q_estimate_tmp==max(self.q_estimate)])
         # if np.random.rand()<self.epsilon:
         #     action_return=np.random.randint(len(self.action_times))
         # else:
+        for i in range(len(self.pi_action)):
+            if i==q_estimate_max:
+                self.pi_action[i] = self.pi_action[i] + beta_pursuit * (1 - self.pi_action[i])
+            else:
+                self.pi_action[i] = self.pi_action[i] + beta_pursuit * (0 - self.pi_action[i])
+
         action_return=np.random.choice(self.action_n,1,p=self.pi_action)[0]
-        if action_return in self.action_optimal_index:
-            self.pi_action[action_return]=self.pi_action[action_return]+beta_pursuit*(1-self.pi_action[action_return])
-        else:
-            self.pi_action[action_return]=self.pi_action[action_return]+beta_pursuit*(0-self.pi_action[action_return])
-        self.pi_action=self.pi_action/np.sum(self.pi_action)
+
         self.action_times[action_return]=self.action_times[action_return]+1
         return action_return
 
@@ -221,7 +224,7 @@ def exe_2_5(sample,play):
 
 def old_figure_2_6(sample,play):
     #[a,b]:a=eplison;b=afa
-    case_set=['pursuit','reinforcement comparison',[0.1,0.1]]
+    case_set=['pursuit','reinforcement comparison',[0.1,0]]
     total_data=np.zeros([len(case_set),2,play])
     for case in case_set:
         if case_set.index(case)==0:
@@ -234,20 +237,25 @@ def old_figure_2_6(sample,play):
         total_data[case_set.index( case ), 0, :] = reward_calculate
         total_data[case_set.index( case ), 1, :] = action_calculate
 
-    fig, axes = plt.subplots( 2, 1, sharex = True )
-    for i in range(total_data.shape[1]):
-        for j in range(total_data.shape[0]):
-            if j==0 or j==1:
-                label_tmp=case_set[j]
-            else:
-                label_tmp='epsilon='+str(case_set[j][0])+', afa='+str(case_set[j][1])
-            axes[i].plot(total_data[j][i],label=label_tmp)
-        axes[i].legend()
-        axes[i].set_xlabel('Plays')
-        if i==0:
-            axes[i].set_ylabel('Average rewards')
+    fig, axes = plt.subplots( 1, 1, sharex = True )
+    # for i in range(total_data.shape[1]):
+    for j in range(total_data.shape[0]):
+        if j==0 or j==1:
+            label_tmp=case_set[j]
         else:
-            axes[i].set_ylabel('Rate of optimal action')
+            label_tmp='epsilon='+str(case_set[j][0])+', afa='+str(case_set[j][1])
+        axes.plot(total_data[j][1],label=label_tmp)
+    axes.legend()
+    axes.set_xlabel('Plays')
+    axes.set_ylabel( 'Rate of optimal action' )
+
+    # axes[i].plot(total_data[j][i],label=label_tmp)
+    #     axes[i].legend()
+    #     axes[i].set_xlabel('Plays')
+    #     if i==0:
+    #         axes[i].set_ylabel('Average rewards')
+    #     else:
+    #         axes[i].set_ylabel('Rate of optimal action')
 
     plt.show()
 if __name__=='__main__':
