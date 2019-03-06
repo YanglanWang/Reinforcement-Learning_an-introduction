@@ -1,3 +1,4 @@
-<img src="/tex/cb62d32f8a2a7b6476eb2c62d3f6c9bf.svg?invert_in_darkmode&sanitize=true" align=middle width=99.42532874999999pt height=26.76175259999998pt/>
-<img src="/tex/aa255e821146d60f10d9bcd4e9f27725.svg?invert_in_darkmode&sanitize=true" align=middle width=57.67121909999999pt height=26.76175259999998pt/>
-<p align="center"><img src="/tex/43c43ca7123212e9e4ef5815b6ecbd9f.svg?invert_in_darkmode&sanitize=true" align=middle width=416.8034178pt height=16.438356pt/></p>
+
+<p align="center"><img src="/tex/d28e6a4222f33b55d19124105fb69835.svg?invert_in_darkmode&sanitize=true" align=middle width=96.80329065pt height=11.96348175pt/></p>
+<img src="/tex/879f72b78bf0b9e092d581af06d564b9.svg?invert_in_darkmode&sanitize=true" align=middle width=38.310511799999986pt height=22.55708729999998pt/>
+<img src="/tex/f37ddd3cf1d89f809c9bbd96f6dc26e0.svg?invert_in_darkmode&sanitize=true" align=middle width=59.5029897pt height=42.37471259999998pt/>
