@@ -2,6 +2,7 @@ class State:
     def __init__(self,state):
         self.value=0
         self.state=state
+        self.action_star=[]
         self.up_state=self.state-5
         self.down_state=self.state+5
         self.left_state=self.state-1
