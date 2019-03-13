@@ -9,18 +9,13 @@ class Day:
         self.request=[0,0]
         self.action=0
 
-    def action_generate( self):
-        # self.action = np.random.choice( [-self.state_location[1],min( 5, self.state_location[0] )], 1 )[0]
-        state_location_set = []
-        # state_location_tmp=np.zeros(2)
-        # for location_tmp in location:
-        action_tmp_set = np.arange( max( -self.state_location[1], -5 ), min( 5, self.state_location[0] ) + 1 )
-
-        for action_tmp in action_tmp_set:
-            location_after_move1 = min(self.state_location[0] - action_tmp,20)
-            location_after_move2 = min(self.state_location[1] + action_tmp,20)
-            state_location_set.append( [location_after_move1, location_after_move2] )
-        return state_location_set,action_tmp_set
+    def action_generate( self,action):
+        # state_location=[self.state_location[0]-action[0],self.state_location[1]+action[0]]
+        state_location=self.state_location-action*np.array([1,-1])
+        # else:
+        #     action_set_deal=np.array(action_set)
+        #     state_location=self.state_location-action_set_deal.reshape(action_set.shape[0],-1)*np.ones((1,2))
+        return state_location
 
     def return_generate( self,state_tmp ):
         return_tmp_set1=np.arange(11)
@@ -118,8 +113,9 @@ class Day:
 def Car_Rental_greedy(deta_value,states):
     reward_matrix=np.zeros((states,states))
     reward_matrix_new=np.ones((states,states))
-    action_matrix=np.zeros((states,states))
-    action_matrix_new=np.ones((states,states))
+    action_matrix=np.ones((states,states))
+    action_matrix_new=np.zeros((states,states))
+
     action_whole=[]
     # Day_matrix=np.array((states,states),dtype = Day)
     Day_matrix=[]
@@ -130,41 +126,65 @@ def Car_Rental_greedy(deta_value,states):
         Day_matrix.append(day_matrix_row)
 
     while False in (action_matrix==action_matrix_new):
-        #policy evaluation
         action_matrix = action_matrix_new
+        #policy evaluation
         deta=float("inf")
         while deta>deta_value:
             for i in range(states):
                 for j in range(states):
                     reward_each_state=[]
-                    state_location_set,action_set = Day_matrix[i][j].action_generate(  )
-                    for state_tmp in range(len(state_location_set)):
-                    #under different actions
-                        location,return_probability=Day_matrix[i][j].return_generate(state_location_set[state_tmp])
+                    state_location = Day_matrix[i][j].action_generate( action_matrix[i][j] )
+                    # for state_tmp in range(len(state_location_set)):
+                    location,return_probability=Day_matrix[i][j].return_generate(state_location)
 
                     # action_tmp_set = np.arange( max( -location2, -5 ),min( 5, location1 ) + 1 )
                     # state_location_set = Day_matrix[i][j].action_generate( location,action_tmp_set )
 
-                        state_location_final,request_satisfied,probability_final = Day_matrix[i][j].request_generate( location,return_probability )
+                    state_location_final,request_satisfied,probability_final = Day_matrix[i][j].request_generate( location,return_probability )
 
-                        reward_each_action=Day_matrix[i][j].reward_calculate(reward_matrix,state_location_final,request_satisfied,probability_final,action_set[state_tmp])
-                        reward_each_state.append(reward_each_action)
-                    #calculate max reward and action
-                    reward_each_state_max=max(reward_each_state)
-                    action_each_state_max=[action_set[i] for i,j in enumerate(reward_each_state) if j==reward_each_state_max]
+                    reward_each_action=Day_matrix[i][j].reward_calculate(reward_matrix,state_location_final,request_satisfied,probability_final,action_matrix[i][j])
 
-                    #calculate average reward
-                    # reward_each_state_average=np.average(reward_each_state)
 
-                    reward_matrix_new[i][j]=reward_each_state_max
-                    action_matrix_new[i][j]=action_each_state_max[0]
+                    # reward_matrix_new[i][j]=reward_each_state_max
+                    reward_matrix_new[i][j]=reward_each_action
+
+                    # action_matrix_new[i][j]=action_each_state_max[0]
                     if i==j==0:
                         deta=0
-                    deta=max(np.abs(reward_each_state_max-reward_matrix[i][j]),deta)
+                    deta=max(np.abs(reward_each_action-reward_matrix[i][j]),deta)
             reward_matrix = reward_matrix_new
+
         #policy improvement
+        for i in range( states ):
+            for j in range( states ):
+                reward_each_state = []
+                action_set = np.arange( max( -j, -5 ), min( 5, i ) + 1 )
+                for action in action_set:
+
+                    state_location = Day_matrix[i][j].action_generate(action)
+                    # for state_tmp in range(len(state_location_set)):
+                    location, return_probability = Day_matrix[i][j].return_generate( state_location )
+
+                    # action_tmp_set = np.arange( max( -location2, -5 ),min( 5, location1 ) + 1 )
+                    # state_location_set = Day_matrix[i][j].action_generate( location,action_tmp_set )
+
+                    state_location_final, request_satisfied, probability_final = Day_matrix[i][j].request_generate(
+                        location, return_probability )
+
+                    reward_each_action = Day_matrix[i][j].reward_calculate( reward_matrix, state_location_final,
+                                                                            request_satisfied, probability_final,
+                                                                            action_matrix[i][j] )
+                    reward_each_state.append( reward_each_action )
+                    # reward_matrix_new[i][j]=reward_each_state_max
+
+                reward_each_state_max = max( reward_each_state )
+                action_each_state_max = [action_set[i] for i, j in enumerate( reward_each_state ) if
+                                         j == reward_each_state_max]
+                # reward_matrix_new[i][j] = reward_each_action
+                action_matrix_new[i][j] = action_each_state_max[0]
+
         # if action_matrix!=action_matrix_new:
-        action_whole.append(action_matrix)
+        action_whole.append(action_matrix_new)
 
 
 
@@ -186,46 +206,7 @@ def generate_matrix(a,b):
         c.append(c_row)
     return c
 
-def Car_Rental_average(times,states):
-    reward_matrix=np.zeros((states,states))
-    reward_matrix_new=np.zeros((states,states))
-    action_matrix=[]
-    # Day_matrix=np.array((states,states),dtype = Day)
-    Day_matrix=[]
-    for i in range(states):
-        day_matrix_row = []
-        for j in range(states):
-            day_matrix_row.append(Day([i,j]))
-        Day_matrix.append(day_matrix_row)
 
-    for k in range(times):
-        for i in range(states):
-            action_matrix_row=[]
-            for j in range(states):
-                Day_matrix[i][j].return_generate()
-                action_tmp_set=np.arange(max(-Day_matrix[i][j].state_location[1],-5), min( 5, Day_matrix[i][j].state_location[0] )+1)
-                state_location_set=Day_matrix[i][j].action_generate(action_tmp_set)
-                state_location_set,request_tmp_set=Day_matrix[i][j].request_generate( state_location_set )
-                #calculate max reward and action
-                # action_max_set,reward_max_tmp=Day_matrix[i][j].reward_calculate_max(reward_matrix,i,j,state_location_set, request_tmp_set, action_tmp_set)
-                # calculate average reward
-                reward_average=Day_matrix[i][j].reward_calculate_average(reward_matrix,i,j,state_location_set, request_tmp_set, action_tmp_set)
-
-                reward_matrix_new[i][j]=reward_average
-                # print(reward_average,end=', ')
-            # print('\n')
-        # print('\n')
-        # print('\n')
-        reward_matrix=reward_matrix_new
-    fig=plt.figure()
-    ax=fig.add_subplot(111,projection='3d')
-    xvalues = np.arange(21)
-    yvalues = np.arange(21)
-    xx, yy = np.meshgrid( xvalues, yvalues )
-    # X, Y, Z = axes3d.get_test_data( 0.05 )
-    ax.plot_surface(X=xx,Y=yy,Z=reward_matrix_new)
-    plt.show()
-    return reward_matrix_new
 
 
 if __name__=="__main__":
