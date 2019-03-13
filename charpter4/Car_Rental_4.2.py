@@ -126,7 +126,12 @@ def Car_Rental_greedy(deta_value,states):
         Day_matrix.append(day_matrix_row)
 
     while False in (action_matrix==action_matrix_new):
-        action_matrix = action_matrix_new
+
+        # action_matrix = action_matrix_new
+        for i in range(len(action_matrix_new)):
+            for j in range(len(action_matrix_new[i])):
+                action_matrix[i][j]=action_matrix_new[i][j]
+
         #policy evaluation
         deta=float("inf")
         while deta>deta_value:
@@ -152,7 +157,10 @@ def Car_Rental_greedy(deta_value,states):
                     if i==j==0:
                         deta=0
                     deta=max(np.abs(reward_each_action-reward_matrix[i][j]),deta)
-            reward_matrix = reward_matrix_new
+            # reward_matrix = reward_matrix_new
+            for i in range(len(reward_matrix_new)):
+                for j in range(len(reward_matrix_new[i])):
+                    reward_matrix[i][j]=reward_matrix_new[i][j]
 
         #policy improvement
         for i in range( states ):
