@@ -74,6 +74,7 @@ class Day:
                         else:
                             request_tmp1 = state_location_set[i][j][0]
                             state_location_final_tmp[0]=int(0)
+
                         state_location_final_tmp[0]=min(state_location_final_tmp[0],19)
                         if request_real_set[a][b][1]<state_location_set[i][j][1]:
                             request_tmp2 = request_real_set[a][b][1]
@@ -81,6 +82,7 @@ class Day:
                         else:
                             request_tmp2 = state_location_set[i][j][1]
                             state_location_final_tmp[1]=int(0)
+
                         state_location_final_tmp[1]=min(state_location_final_tmp[1],19)
 
                         state_location_final.append(state_location_final_tmp)
@@ -132,6 +134,7 @@ def Car_Rental_greedy(deta_value,states):
             for j in range(len(action_matrix_new[i])):
                 action_matrix[i][j]=action_matrix_new[i][j]
 
+
         #policy evaluation
         deta=float("inf")
         while deta>deta_value:
@@ -150,17 +153,18 @@ def Car_Rental_greedy(deta_value,states):
                     reward_each_action=Day_matrix[i][j].reward_calculate(reward_matrix,state_location_final,request_satisfied,probability_final,action_matrix[i][j])
 
 
-                    # reward_matrix_new[i][j]=reward_each_state_max
-                    reward_matrix_new[i][j]=reward_each_action
+                    # reward_matrix_new[i][j]=reward_each_action
+                    reward_matrix[i][j]=reward_each_action
 
                     # action_matrix_new[i][j]=action_each_state_max[0]
                     if i==j==0:
                         deta=0
                     deta=max(np.abs(reward_each_action-reward_matrix[i][j]),deta)
             # reward_matrix = reward_matrix_new
-            for i in range(len(reward_matrix_new)):
-                for j in range(len(reward_matrix_new[i])):
-                    reward_matrix[i][j]=reward_matrix_new[i][j]
+
+            # for i in range(len(reward_matrix_new)):
+            #     for j in range(len(reward_matrix_new[i])):
+            #         reward_matrix[i][j]=reward_matrix_new[i][j]
 
         #policy improvement
         for i in range( states ):
@@ -202,7 +206,7 @@ def Car_Rental_greedy(deta_value,states):
         plt.show()
 
 
-    return reward_matrix_new,action_matrix
+    return reward_matrix,action_matrix
     # return reward_matrix_new
 
 def generate_matrix(a,b):
