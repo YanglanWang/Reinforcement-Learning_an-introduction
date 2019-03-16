@@ -4,42 +4,53 @@ from mpl_toolkits.mplot3d import Axes3D
 
 def get_value(state_tmp1,state_tmp2,usable_ace):
     state_set_episode=[]
-    state_set_episode.append( [state_tmp1,state_tmp2] )
 
     dealer_showing=state_tmp1
     player_sum=state_tmp2
     dealer_facedown=np.random.choice(np.arange(1,12))
 
-    if player_sum==21 and dealer_showing+dealer_facedown==21:
-        rewards=0
-    if player_sum==21 and dealer_showing+dealer_facedown<21:
-        rewards=1
-    if player_sum==21 and dealer_showing+dealer_facedown>21:
-        rewards=-1
+    if usable_ace == True:
+        choice_set = np.arange( 1, 12 )
     else:
-        if usable_ace == True:
-            choice_set = np.arange( 1, 12 )
-        else:
-            choice_set = np.arange( 1, 11 )
-        while True:
+        choice_set = np.arange( 1, 11 )
 
+
+    while True:
+        if player_sum == 21 and dealer_showing + dealer_facedown == 21:
+            rewards = 0
+            state_set_episode.append( [dealer_showing, player_sum] )
+            break
+        elif player_sum == 21 and dealer_showing + dealer_facedown < 21:
+            rewards = 1
+            state_set_episode.append( [dealer_showing, player_sum] )
+            break
+        elif player_sum < 21 and dealer_showing + dealer_facedown == 21:
+            rewards = -1
+            state_set_episode.append( [dealer_showing, player_sum] )
+            break
+        elif player_sum>21:
+            rewards=-1
+            break
+        elif player_sum==20:
+            #player choose stop
+            while dealer_facedown+dealer_showing<17:
+                dealer_facedown=dealer_facedown+np.random.choice(choice_set)
+                state_set_episode.append( [dealer_showing, player_sum] )
+            if dealer_facedown+dealer_showing>player_sum:
+                rewards=-1
+                break
+            elif dealer_facedown+dealer_showing<player_sum:
+                rewards=1
+                break
+            else:
+                rewards=0
+                break
+        else:
+            state_set_episode.append( [dealer_showing, player_sum] )
             player_action=np.random.choice(choice_set)
             player_sum=player_sum+player_action
-            state_set_episode.append( [dealer_showing, player_sum] )
-            if player_sum>21:
-                rewards=-1
-            elif np.random.rand()>0.5:
-                #player choose stop
-                while dealer_facedown+dealer_showing<17:
-                    dealer_facedown=dealer_facedown+np.random.choice(np.arange(1,12))
-                if dealer_facedown+dealer_showing>player_sum:
-                    rewards=-1
-                elif dealer_facedown+dealer_showing<player_sum:
-                    rewards=1
-                else:
-                    rewards=0
-    return rewards,state_set_episode
 
+    return rewards,state_set_episode
 
 
 row_list=[11]
@@ -67,14 +78,19 @@ def figure5_2(usable_ace, episodes):
             for i,j in value_set:
                 location1,=np.where(i==row)
                 location2,=np.where(j==column)
-                state_value_set[location1][location2].append(rewards)
+                state_value_set[location1[0]][location2[0]].append(rewards)
         for i in range(len(state_value)):
             for j in range(len(state_value[i])):
-                state_value[i][j]=np.average(np.array(state_value_set[i][j]))
-
-    Axes3D.plot_wireframe( row, column, state_value)
-
+                if state_value_set[i][j]!=[]:
+                    state_value[i][j]=np.average(np.array(state_value_set[i][j]))
+    # fig,axes=plot.subplots(1,1)
+    fig = plot.figure()
+    ax = fig.add_subplot( 111, projection = '3d' )
+    row[0]=1
+    X, Y = np.meshgrid( row,column )
+    Axes3D.plot_wireframe( ax,X, Y, np.transpose(state_value))
+    plot.show()
 
 
 if __name__=="__main__":
-    figure5_2(True,10000)
+    figure5_2(True,500000)
