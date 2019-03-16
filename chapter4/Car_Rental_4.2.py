@@ -129,10 +129,11 @@ def Car_Rental_greedy(deta_value,states):
 
     while False in (action_matrix==action_matrix_new):
 
-        # action_matrix = action_matrix_new
-        for i in range(len(action_matrix_new)):
-            for j in range(len(action_matrix_new[i])):
-                action_matrix[i][j]=action_matrix_new[i][j]
+        # # action_matrix = action_matrix_new
+        # for i in range(len(action_matrix_new)):
+        #     for j in range(len(action_matrix_new[i])):
+        #         action_matrix[i][j]=action_matrix_new[i][j]
+        action_matrix=np.copy(action_matrix_new)
 
 
         #policy evaluation
@@ -167,6 +168,8 @@ def Car_Rental_greedy(deta_value,states):
             #         reward_matrix[i][j]=reward_matrix_new[i][j]
 
         #policy improvement
+        # a = np.copy( a )
+        action_matrix_new=np.copy(action_matrix_new)
         for i in range( states ):
             for j in range( states ):
                 reward_each_state = []
