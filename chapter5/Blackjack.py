@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plot
 from mpl_toolkits.mplot3d import Axes3D
+from itertools import product, combinations
 
 def get_value(state_tmp1,state_tmp2,usable_ace):
     state_set_episode=[]
@@ -89,8 +90,12 @@ def figure5_2(usable_ace, episodes):
     row[0]=1
     X, Y = np.meshgrid( row,column )
     Axes3D.plot_wireframe( ax,X, Y, np.transpose(state_value))
+    r = [-1, 1]
+    for s, e in combinations( np.array( list( product( [1,10], [12,21], [-1,1] ) ) ), 2 ):
+        if np.sum( np.abs( s - e ) ) == r[1] - r[0] or np.sum( np.abs( s - e ) ) == 9:
+            ax.plot3D( *zip( s, e ), color = "b" )
     plot.show()
 
 
 if __name__=="__main__":
-    figure5_2(True,500000)
+    figure5_2(True,10000)
