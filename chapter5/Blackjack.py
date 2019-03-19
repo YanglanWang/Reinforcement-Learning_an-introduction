@@ -150,71 +150,105 @@ def calculate_action_state( initial_state_action, policy_action ):
         player_sum = player_card1 + player_card2
         ace_number = 0
         if 1 in (player_card1, player_card2):
-            player_sum = player_sum + 10
-            usable_ace = True
             if player_card1 == player_card2:
                 ace_number = 2
+                player_sum = player_sum + 20
+                usable_ace = True
+                if player_sum > 21:
+                    player_sum = player_sum - 10
+                    ace_number = ace_number-1
+                    if player_sum > 21:
+                        player_sum = player_sum - 10
+                        ace_number = ace_number - 1
+                        usable_ace = False
             else:
                 ace_number = 1
+                player_sum = player_sum + 10
+                usable_ace = True
+                if player_sum > 21:
+                    player_sum = player_sum - 10
+                    ace_number = ace_number-1
+                    usable_ace=False
         else:
             usable_ace = False
 
         while player_sum < 12:
             player_card_addition = get_card()
-            if player_card_addition == 1:
-                ace_number = ace_number + 1
             player_sum = player_sum + player_card_addition
-            if ace_number == 1:
-                player_sum = player_sum + 10
-                usable_ace = True
+            if player_card_addition == 1:
+                player_sum=player_sum+10
+                ace_number = ace_number + 1
+                if ace_number==1:
+                    usable_ace=True
                 if player_sum > 21:
                     player_sum = player_sum - 10
-                    usable_ace = False
+                    ace_number=ace_number-1
+                    if ace_number == 0:
+                        usable_ace = False
+
     # the player_sum is [13,21]
+
+        action=np.random.choice([0,1])
 
     dealer_facedown = get_card()
     dealer_sum = dealer_self + dealer_facedown
     ace_number_dealer = 0
     if 1 in (dealer_facedown, dealer_self):
-        dealer_sum = dealer_sum + 10
-        dealer_ace = True
         if dealer_self == dealer_facedown:
             ace_number_dealer = 2
+            dealer_sum = dealer_sum + 20
+            dealer_ace = True
+            if dealer_sum>21:
+                dealer_sum=dealer_sum-10
+                ace_number_dealer=ace_number_dealer-1
+                if dealer_sum>21:
+                    dealer_sum = dealer_sum - 10
+                    ace_number_dealer = ace_number_dealer - 1
+                    dealer_ace=False
         else:
             ace_number_dealer = 1
+            dealer_sum=dealer_sum+10
+            dealer_ace=True
+            if dealer_sum>21:
+                dealer_sum=dealer_sum-10
+                ace_number_dealer=ace_number_dealer-1
+                dealer_ace=False
     else:
         dealer_ace = False
 
-    action=np.random.choice([0,1])
     while True:
         state_action_set.append([dealer_self,player_sum,usable_ace,action])
         if action == 0:
         # means stop, dealer's turn
             while dealer_sum < 17:
                 dealer_addition = get_card()
+                dealer_sum = dealer_sum + dealer_addition
                 if dealer_addition == 1:
                     ace_number_dealer = ace_number_dealer + 1
-                dealer_sum = dealer_sum + dealer_addition
-                if ace_number_dealer == 1:
                     dealer_sum = dealer_sum + 10
-                    dealer_ace = True
-                    if dealer_sum > 21:
-                        dealer_sum = dealer_sum - 10
-                        dealer_ace = False
+                    if ace_number_dealer==1:
+                        dealer_ace = True
+                while dealer_sum > 21 and ace_number_dealer>0:
+                    dealer_sum = dealer_sum - 10
+                    ace_number_dealer=ace_number_dealer-1
+                if ace_number_dealer==0:
+                    dealer_ace = False
             break
-            #dealer_sum is [18,>21]
+            #dealer_sum is [18,27]
         else:
         # means hit
             player_card_addition = get_card()
             player_sum = player_sum + player_card_addition
             if player_card_addition == 1:
                 ace_number = ace_number + 1
-            if ace_number == 1:
                 player_sum = player_sum + 10
-                usable_ace = True
-                if player_sum > 21:
+                if ace_number == 1:
+                    usable_ace = True
+            while player_sum > 21 and usable_ace>0:
                     player_sum = player_sum - 10
-                    usable_ace = False
+                    usable_ace=usable_ace-1
+            if ace_number==0:
+                usable_ace = False
             if player_sum > 21:
                 break
             else:
@@ -292,7 +326,7 @@ def figure5_2():
             if np.sum( np.abs( s - e ) ) == r[1] - r[0] or np.sum( np.abs( s - e ) ) == 9:
                 ax.plot3D( *zip( s, e ), color = "b" )
     plot.show()
-    plot.savefig('figure5_2.jpg')
+    plot.savefig('figure5_2.png')
 
 
 
@@ -302,14 +336,18 @@ def figure5_5(episodes):
     action_value_set_usable = []
     action_value_set_unusable = []
     for i in range( len( row ) ):
-        row_circulate = []
+        row_circulate_usable = []
+        row_circulate_unusable = []
         for j in range( len( column ) ):
-            different_action=[]
+            different_action_usable=[]
+            different_action_unusable=[]
             for k in range(2):
-                different_action.append([])
-            row_circulate.append( different_action )
-        action_value_set_unusable.append( row_circulate )
-        action_value_set_usable.append( row_circulate )
+                different_action_usable.append([])
+                different_action_unusable.append([])
+            row_circulate_usable.append( different_action_usable )
+            row_circulate_unusable.append(different_action_unusable)
+        action_value_set_unusable.append( row_circulate_usable )
+        action_value_set_usable.append( row_circulate_unusable )
 
     action_value_usable=[]
     for i in range(len(row)):
@@ -385,5 +423,5 @@ def figure5_5(episodes):
     plot.show()
 
 if __name__=="__main__":
-    # figure5_2()
-    figure5_5(500000)
+    figure5_2()
+    # figure5_5(500000)
