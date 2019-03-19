@@ -34,7 +34,7 @@ def figure6_6():
     for i in range(len(value_state)):
         ax.plot(value_state[i],label=str(episodes[i]))
     plt.legend()
-    plt.savefig('Randomwalk_6_6.png')
+    # plt.savefig('Randomwalk_6_6.png')
     plt.show()
 
 
