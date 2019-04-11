@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d import axes3d
 class Day:
@@ -139,7 +140,7 @@ def Car_Rental_greedy(deta_value,states):
         #policy evaluation
         deta=float("inf")
         while deta>deta_value:
-            for i in range(states):
+            for i in tqdm(range(states)):
                 for j in range(states):
                     reward_each_state=[]
                     state_location = Day_matrix[i][j].action_generate( action_matrix[i][j] )
@@ -170,7 +171,7 @@ def Car_Rental_greedy(deta_value,states):
         #policy improvement
         # a = np.copy( a )
         action_matrix_new=np.copy(action_matrix_new)
-        for i in range( states ):
+        for i in tqdm(range( states )):
             for j in range( states ):
                 reward_each_state = []
                 action_set = np.arange( max( -j, -5 ), min( 5, i ) + 1 )
